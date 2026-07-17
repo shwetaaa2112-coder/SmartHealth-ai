@@ -11,4 +11,4 @@ SmartHealth AI ek modern aur responsive web application hai jo users ko unka BMI
 * **HTML5:** Structuring aur dashboard layout ke liye.
 * **CSS3:** Gradient background aur modern UI styling ke liye.
 * **JavaScript (JS):** Analytics logic, dynamic charts, aur PDF generation trigger karne ke liye.
-*
+
