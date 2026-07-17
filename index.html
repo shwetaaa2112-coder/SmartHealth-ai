@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartHealth.ai | Professional Multi-User Dashboard</title>
+    <!-- Modern Plus Jakarta Sans Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+      /* Modern CSS Variables for clean UI integration */
+      :root {
+        --bg-main: #0b0f19;
+        --bg-card: #151b2c;
+        --accent: #4f46e5;
+        --accent-hover: #6366f1;
+        --text-main: #f3f4f6;
+        --text-muted: #9ca3af;
+        --success: #10b981;
+      }
+
+      /* 🔐 ULTIMATE FULL-SCREEN OPAQUE AUTH FIX */
+      #authOverlay { 
+          position: fixed !important; 
+          top: 0 !important; 
+          left: 0 !important; 
+          width: 100vw !important; 
+          height: 100vh !important; 
+          background-color: #0b0f19 !important; /* Pure Solid Dark - No transparency */
+          display: flex !important; 
+          justify-content: center !important; 
+          align-items: center !important; 
+          z-index: 999999 !important; /* Highest layer stacking */
+          box-sizing: border-box;
+          overflow: hidden;
+      }
+
+      /* 💳 LOGIN CARD WRAPPER */
+      .auth-card { 
+          background: #151b2c; 
+          border: 1px solid #1e293b; 
+          padding: 35px; 
+          border-radius: 16px; 
+          width: 100%; 
+          max-width: 420px; 
+          text-align: center; 
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+          position: relative;
+          overflow: hidden;
+      }
+
+      .auth-tabs {
+        display: flex;
+        margin-bottom: 25px;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .auth-tab {
+        flex: 1;
+        padding: 12px;
+        cursor: pointer;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-align: center;
+        transition: 0.3s;
+      }
+
+      .auth-tab.active {
+        color: #fff;
+        border-bottom: 2px solid var(--accent);
+      }
+
+      .auth-group {
+        margin-bottom: 20px;
+        text-align: left;
+      }
+
+      .auth-group label {
+        display: block;
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+      }
+
+      .auth-input {
+        width: 100%;
+        padding: 12px;
+        background: #0b0f19;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 15px;
+        box-sizing: border-box;
+      }
+
+      .auth-input:focus {
+        border-color: var(--accent);
+        outline: none;
+      }
+
+      .btn-auth {
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.3s;
+      }
+
+      .btn-auth:hover {
+        background: var(--accent-hover);
+      }
+
+      /* Initial state fallback for main dashboard to avoid overlap peek */
+      .container {
+        display: none; 
+      }
+
+      /* Top Header Navigation style update */
+      header.hero-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #1e293b;
+        margin-bottom: 25px;
+        width: 100%;
+      }
+
+      .header-title-box h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .header-title-box p {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      .auth-status {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .btn-logout {
+        background: transparent;
+        border: 1px solid #ef4444;
+        color: #ef4444;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+
+      .btn-logout:hover {
+        background: #ef4444;
+        color: white;
+      }
+    </style>
+</head>
+
+<body>
+
+    <!-- 🔐 FULL SCREEN AUTHENTICATION OVERLAY MODULE -->
+    <div id="authOverlay">
+        <div class="auth-card">
+            <h2 style="margin-bottom: 8px; color:#fff; letter-spacing: 0.5px;">SmartHealth.ai</h2>
+            <p style="color: var(--text-muted); font-size:14px; margin-bottom:25px;">Secure Client-Side Multi-User Database</p>
+            
+            <div class="auth-tabs">
+                <div id="tabLogin" class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+                <div id="tabRegister" class="auth-tab" onclick="switchAuthTab('register')">Sign Up</div>
+            </div>
+            
+            <!-- LOGIN / SIGNUP FORM -->
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="auth-group">
+                    <label>Username</label>
+                    <input type="text" id="authUsername" class="auth-input" required placeholder="Enter username">
+                </div>
+                <div class="auth-group">
+                    <label>Password</label>
+                    <input type="password" id="authPassword" class="auth-input" required placeholder="••••••••">
+                </div>
+                
+                <!-- Forgot Password Button (Direct Inline CSS Toggle) -->
+                <div style="text-align: right; margin-top: -10px; margin-bottom: 20px;">
+                    <button type="button" onclick="var box = document.getElementById('recoveryBox'); box.style.display = (box.style.display === 'none') ? 'block' : 'none';" style="background: none; border: none; color: #4facfe; font-size: 13px; text-decoration: underline; font-weight: 600; cursor: pointer; padding: 0;">
+                        Forgot Password?
+                    </button>
+                </div>
+
+                <button type="submit" id="btnAuthSubmit" class="btn-auth">Login to Dashboard</button>
+            </form>
+
+            <!-- RECOVERY OVERLAY BLOCK (Slide screen container overlay) -->
+            <div id="recoveryBox" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #151b2c; padding: 30px; box-sizing: border-box; text-align: left; z-index: 10;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h4 style="color: white; margin: 0; font-size: 16px;">🔑 Recover Password</h4>
+                    <button type="button" onclick="document.getElementById('recoveryBox').style.display = 'none';" style="background:none; border:none; color:#ef4444; font-size:20px; cursor:pointer;">&times;</button>
+                </div>
+                
+                <label style="color: #9ca3af; font-size: 12px; display: block; margin-bottom: 5px;">Enter Username:</label>
+                <input type="text" id="recoverUser" style="width: 100%; padding: 10px; background: #0b0f19; border: 1px solid #1e293b; border-radius: 6px; color: white; margin-bottom: 15px; box-sizing: border-box;" placeholder="username">
+                
+                <button type="button" onclick="
+                    var user = document.getElementById('recoverUser').value.trim().toLowerCase();
+                    var status = document.getElementById('recoveryStatus');
+                    if(!user) { status.style.color = '#ef4444'; status.innerText = '⚠️ Enter username!'; return; }
+                    
+                    var users = JSON.parse(localStorage.getItem('registered_users')) || {};
+                    if(!users[user]) { status.style.color = '#ef4444'; status.innerText = '❌ Username not found!'; return; }
+                    
+                    status.style.color = '#10b981';
+                    status.innerHTML = '🎉 Password Found:<br><b style=\'color:white; font-size:16px;\'>' + users[user].password + '</b>';
+                " style="width: 100%; padding: 12px; background: #4facfe; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">
+                    Find Password
+                </button>
+                
+                <p id="recoveryStatus" style="font-size: 13px; font-weight: 600; margin-top: 15px; color: white; line-height: 1.4;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📊 MAIN APPLICATION DASHBOARD CONTAINER -->
+    <div class="container" id="mainDashboardContainer">
+
+        <!-- Premium Global Header Section with Session Status -->
+        <header class="hero-section">
+          <div class="header-title-box">
+            <h1>SmartHealth<span class="ai-badge">.ai</span></h1>
+            <p>Apna daily health metrics enter karein aur instant AI assessment report paayein ⚡</p>
+          </div>
+          <div class="auth-status">
+            <span id="userDisplay" style="color: var(--text-muted); font-weight: 600; font-size: 14px;"></span>
+            <button class="btn-logout" id="btnLogout" onclick="handleLogout()" style="display: none;">Logout</button>
+          </div>
+        </header>
+
+        <!-- Main Layout Grid -->
+        <div class="main-grid">
+
+          <!-- LEFT: FORM -->
+          <div class="form-card">
+            <form id="healthForm" autocomplete="off" onsubmit="processHealthData(event)">
+              <input type="hidden" id="activeUser" value="Profile_1">
+
+              <label for="name">Name:</label>
+              <input type="text" id="name" placeholder="Enter your name" required>
+              <br>
+
+              <label for="age">Age:</label>
+              <input type="number" id="age" autocomplete="new-password" min="1" max="120" required>
+              <br>
+
+              <label>Gender:</label>
+              <input type="radio" name="gender" value="Male" id="male" required> 
+              <label for="male" style="display:inline-block; margin-right:15px; color:#fff;">Male</label>
+              <input type="radio" name="gender" value="Female" id="female"> 
+              <label for="female" style="display:inline-block; margin-right:15px; color:#fff;">Female</label>
+              <input type="radio" name="gender" value="Other" id="other"> 
+              <label for="other" style="display:inline-block; color:#fff;">Other</label>
+              <br>
+              <br>
+
+              <label for="height">Height(feet):</label>
+              <input type="number" step="0.1" id="height" autocomplete="new-password" min="2" max="10" required>
+              <br>
+
+              <label for="weight">weight(kg):</label>
+              <input type="number" step="0.1" id="weight" autocomplete="new-password" min="10" max="300" required>
+              <br>
+
+              <label for="bloodGroup">Blood Group</label>
+              <select id="bloodGroup">
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+              </select>
+              <br>
+
+              <label for="heartRate">Heart Rate(BPM):</label>
+              <input type="number" id="heartRate" autocomplete="new-password" min="30" max="220" placeholder="E.g., 72 if unknown">
+              <br>
+
+              <label for="sleepHours">Sleep Hours:</label>
+              <input type="number" id="sleepHours" autocomplete="new-password" required>
+              <br>
+
+              <label for="waterIntake">Water Intake(L):</label>
+              <input type="number" id="waterIntake" autocomplete="new-password" step="0.1" required>
+              <br>
+
+              <label for="stepsWalked">Steps Walked:</label>
+              <input type="number" id="stepsWalked" autocomplete="new-password" required>
+              <br>
+
+              <label for="exerciseMinutes">Exercise Minutes:</label>
+              <input type="number" id="exerciseMinutes" autocomplete="new-password" required>
+              <br>
+
+              <label for="stressLevel">Stress Level (1-10):</label>
+              <input type="number" id="stressLevel" autocomplete="new-password" min="1" max="10" required>
+              <br>
+
+              <button type="submit" id="submitbtn">SUBMIT & RUN DIAGNOSTICS</button>
+            </form>
+          </div>
+
+          <!-- RIGHT: RESULT -->
+          <div class="result-card">
+            <div id="result">
+              <div class="empty-state">
+                <div style='font-size:60px'>📊</div>
+                <h3>Result yaha dikhega</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Safe HTML Download Trigger -->
+          <button id="btnDownload" onclick="downloadPDFReport()" style="width:100%; margin-top:15px; background: linear-gradient(90deg, #ff007f, #7928ca); color:white; padding:12px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; display:none;">
+            📥 Download Medical Analytics Report (PDF)
+          </button>
+
+          <!-- Trend Graph Box -->
+          <div style="background: #1a1a2e; padding: 20px; border-radius: 20px; margin-top: 20px;">
+            <h4 style="color: white; margin-bottom: 15px;">📈 BMI & Weight Analytics Trend</h4>
+            <canvas id="healthChart" width="400" height="200"></canvas>
+          </div>
+
+        </div> <!-- main-grid Ends -->
+
+        <!-- AI Personalized Report Container -->
+        <div id="aiReportContainer" style="margin-top: 20px; display: none;">
+          <h2>🤖 AI Smart Health Analysis</h2>
+          <div id="aiReportText" style="line-height: 1.6; font-size: 15px; color: #2c3e50;">
+            <!-- AI live text stream inject -->
+          </div>
+        </div>
+
+        <!-- HISTORY SECTION -->
+        <div class="history-box">
+          <h2>📋 Your Account History Logs</h2>
+          <table id="historyTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Weight</th>
+                <th>Height</th>
+                <th>BMI</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <!-- Dynamic logs -->
+            </tbody>
+          </table>
+        </div>
+
+    </div> <!-- container Ends -->
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</body>
+</html>
